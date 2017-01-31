@@ -126,4 +126,20 @@ ExportStateYear("Alabama", "2002")
 #### PART 4 #####
 #################
 
-# Your script for Part 4 goes here (and delete this comment!)
+# This function displays the drinking data for any drinking and binge drinking, specific to the given
+# state, county and year. In addition, it shows the difference between males and females for both any  
+# and binge drinking.
+FindGenderDrinkingDifferenceStateYear <- function(state, county, year) {
+  selected.year.data <- paste0(c("any_females_", "any_males_","binge_females_", "binge_males_"), year)
+  
+  state.year.dataframe<-select_(all.drinking, ~any_state, ~any_location, .dots = selected.year.data) %>% filter(any_state == state) %>% 
+    filter(any_location == county) %>% mutate_(any_male_female_difference = paste0("any_females_", year, "-", "any_males_", year)) %>% 
+    mutate_(binge_male_female_difference = paste0("binge_females_", year, "-", "binge_males_", year))
+  
+  return(state.year.dataframe)
+  
+}
+
+print(FindGenderDrinkingDifferenceStateYear("Alabama", "Baldwin County", "2012"))
+print(FindGenderDrinkingDifferenceStateYear("Washington", "King County", "2003"))
+
