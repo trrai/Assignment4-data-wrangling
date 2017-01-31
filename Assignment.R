@@ -47,13 +47,11 @@ library(stringr)
 binge.drinking<-read.csv("data/binge_drinking.csv", stringsAsFactors = FALSE)
 
 #Using functions from the dplyr package, extract a data frame that has only county-level observations (so no national or state rows).
-county.level<-select(binge.drinking, location, everything()) %>% filter(str_detect(location, "County"))
+county.level<- filter(binge.drinking, state != "National",  location != state)
 
 #Confirm that you've extracted the correct data by checking that the number of observations is correct. It should only be missing the 50 states, the District of Columbia, and the National data.
-#states<-binge.drinking$state
-#filter(county.level, location != state)
-states<-binge.drinking$state
-str_detect(states, county.level$location)
+nrow(county.level) - nrow(binge.drinking) #Missing 52 states so correct
+
 
 #Using functions from the dplyr package in a single statement (line of code) add three (3) new columns to your data frame of county-level binge drinking data. These columns should include the change in binge drinking rates from 2002 to 2012 for both sexes, males, and females respectively.
 county.level<-mutate(county.level,change_both_sexes = both_sexes_2012-both_sexes_2002) %>% mutate(change_in_males = males_2012-males_2002) %>% mutate(change_in_females = females_2012-females_2002)
@@ -132,14 +130,14 @@ ExportStateYear("Alabama", "2002")
 FindGenderDrinkingDifferenceStateYear <- function(state, county, year) {
   selected.year.data <- paste0(c("any_females_", "any_males_","binge_females_", "binge_males_"), year)
   
-  state.year.dataframe<-select_(all.drinking, ~state, ~location, .dots = selected.year.data) %>% filter(state == state) %>% 
-    filter(location == county) %>% mutate_(any_male_female_difference = paste0("any_females_", year, "-", "any_males_", year)) %>% 
+  state.year.dataframe<-select_(all.drinking, ~state, ~location, .dots = selected.year.data) %>% filter(state == state, location == county) %>% 
+    mutate_(any_male_female_difference = paste0("any_females_", year, "-", "any_males_", year)) %>% 
     mutate_(binge_male_female_difference = paste0("binge_females_", year, "-", "binge_males_", year))
   
   return(state.year.dataframe)
   
 }
 
-print(FindGenderDrinkingDifferenceStateYear("Alabama", "Baldwin County", "2012"))
+print(FindGenderDrinkingDifferenceStateYear("Alabama", "Chilton County", "2012"))
 print(FindGenderDrinkingDifferenceStateYear("Washington", "King County", "2003"))
 
